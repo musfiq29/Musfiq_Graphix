@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mushfiq - Admin Panel</title>
+  
+  <!-- Netlify CMS with correct path -->
+  <script src="https://unpkg.com/netlify-cms@^2.10.0/dist/netlify-cms.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .logo {
+      font-size: 36px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+    
+    .status {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f8f9fa;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .loading {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 500;
+      margin: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+    }
+    
+    code {
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🎨 Mushfiq Admin</div>
+    <h1>Content Management System</h1>
+    <p>Manage your portfolio content easily</p>
+    
+    <div id="status" class="status loading">
+      <h3>🔄 Loading Admin Panel...</h3>
+      <p>Please wait while CMS initializes</p>
+    </div>
+    
+    <div id="error" class="status error" style="display: none;">
+      <h3>⚠️ Configuration Error</h3>
+      <p id="error-message"></p>
+      <div style="text-align: left; margin-top: 15px;">
+        <p><strong>Quick Fix:</strong></p>
+        <ol>
+          <li>Make sure <code>config.yml</code> is in the root folder (not inside admin folder)</li>
+          <li>Check browser console for details (F12 → Console)</li>
+          <li>Clear browser cache (Ctrl+F5)</li>
+        </ol>
+      </div>
+      <button class="btn" onclick="checkConfig()">Check Configuration</button>
+      <button class="btn btn-secondary" onclick="window.location.reload()">Reload Page</button>
+    </div>
+    
+    <div id="success" class="status success" style="display: none;">
+      <h3>✅ Admin Panel Ready!</h3>
+      <p>CMS loaded successfully. You can now manage your content.</p>
+      <p><small>If you don't see the login form below, try reloading the page.</small></p>
+    </div>
+    
+    <!-- Netlify CMS will load here -->
+    <div id="cms" style="margin-top: 30px;"></div>
+    
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+      <p><strong>File Structure:</strong></p>
+      <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left; font-size: 14px; margin-top: 10px;">
+📁 your-website/
+├── 📄 index.html
+├── 📄 config.yml
+└── 📁 admin/
+    └── 📄 index.html
+      </pre>
+    </div>
+  </div>
+
+  <script>
+    // Check if config.yml exists
+    async function checkConfig() {
+      try {
+        const response = await fetch('/config.yml');
+        if (response.ok) {
+          showMessage('✅ config.yml found at root!', 'success');
+        } else {
+          showMessage('❌ config.yml not found at root level', 'error');
+        }
+      } catch (error) {
+        showMessage('❌ Error checking config: ' + error.message, 'error');
+      }
+    }
+    
+    function showMessage(message, type) {
+      const statusEl = document.getElementById('status');
+      const errorEl = document.getElementById('error');
+      const successEl = document.getElementById('success');
+      
+      if (type === 'success') {
+        statusEl.style.display = 'none';
+        errorEl.style.display = 'none';
+        successEl.style.display = 'block';
+        successEl.innerHTML = `<h3>${message}</h3>`;
+      } else {
+        statusEl.style.display = 'none';
+        successEl.style.display = 'none';
+        errorEl.style.display = 'block';
+        document.getElementById('error-message').textContent = message;
+      }
+    }
+    
+    // Check if Netlify CMS loaded
+    setTimeout(() => {
+      if (typeof NetlifyCms !== 'undefined') {
+        showMessage('Admin panel loaded successfully!', 'success');
+        console.log('Netlify CMS loaded:', NetlifyCms);
+      } else {
+        showMessage('Netlify CMS failed to load. Check console for errors.', 'error');
+      }
+    }, 3000);
+    
+    // Auto-check config on page load
+    window.addEventListener('load', () => {
+      setTimeout(checkConfig, 1000);
+    });
+    
+    // Redirect after login (for Netlify Identity)
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        if (!user) {
+          window.netlifyIdentity.on("login", () => {
+            document.location.href = "/admin/";
+          });
+        }
+      });
+    }
+  </script>
+</body>
+</html>
